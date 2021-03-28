@@ -6,6 +6,7 @@ use App\Repository\AdRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert; //https://symfony.com/doc/current/validation.html
 
 /**
  * @ORM\Entity(repositoryClass=AdRepository::class)
@@ -19,8 +20,16 @@ class Ad
      */
     private $id;
 
+    // https://symfony.com/doc/4.4/reference/constraints/Length.html
     /**
      * @ORM\Column(type="string", length=255)
+     * @Assert\Length(
+     *      min = 10,
+     *      max = 50,
+     *      minMessage = "vous devez avoir plus que {{ limit }} caractères",
+     *      maxMessage = "Vous ne devez pas dépasser {{ limit }} caractères",
+     *      allowEmptyString = false
+     * )
      */
     private $title;
 
@@ -44,8 +53,16 @@ class Ad
      */
     private $content;
 
+    //@Assert\Url=> https://symfony.com/doc/4.4/reference/constraints/Url.html
+    //https://symfony.com/doc/4.4/reference/constraints/Regex.html
     /**
      * @ORM\Column(type="string", length=255)
+     * @Assert\Url
+     * @Assert\Regex(
+     *     pattern="#\.(jpg|gif|png)$#",
+     *     match=true,
+     *     message="votre URL doit se terminer par ...."
+     * )
      */
     private $coverImage;
 
@@ -54,14 +71,25 @@ class Ad
      */
     private $rooms;
 
+
+    // @Assert\Valid => https://symfony.com/doc/4.4/reference/constraints/Valid.html : de co the mettre des constraint cho images (sd nhung contraints trong Entity Image.php)
     /**
      * @ORM\OneToMany(targetEntity=Image::class, mappedBy="ad", orphanRemoval=true)
+     * @Assert\Valid
      */
     private $images;
+
+    /**
+     * @ORM\OneToMany(targetEntity=ImageUpload::class, mappedBy="ad", orphanRemoval=true)
+     */
+    private $imageUploads;
+
+    public $file; //concerne les images téléchargé afin de pouvoir mettre ensuite des validations
 
     public function __construct()
     {
         $this->images = new ArrayCollection();
+        $this->imageUploads = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -177,6 +205,36 @@ class Ad
             // set the owning side to null (unless already changed)
             if ($image->getAd() === $this) {
                 $image->setAd(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|ImageUpload[]
+     */
+    public function getImageUploads(): Collection
+    {
+        return $this->imageUploads;
+    }
+
+    public function addImageUpload(ImageUpload $imageUpload): self
+    {
+        if (!$this->imageUploads->contains($imageUpload)) {
+            $this->imageUploads[] = $imageUpload;
+            $imageUpload->setAd($this);
+        }
+
+        return $this;
+    }
+
+    public function removeImageUpload(ImageUpload $imageUpload): self
+    {
+        if ($this->imageUploads->removeElement($imageUpload)) {
+            // set the owning side to null (unless already changed)
+            if ($imageUpload->getAd() === $this) {
+                $imageUpload->setAd(null);
             }
         }
 
