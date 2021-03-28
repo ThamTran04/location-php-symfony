@@ -12,9 +12,9 @@ class AppFixtures extends Fixture
 {
 	public function load(ObjectManager $manager)
 	{
-		$slugify = new Slugify();
-		$titre = "titre de l'annonce n°!";
-		$slug = $slugify->slugify($titre);
+		// $slugify = new Slugify();
+		// $titre = "titre de l'annonce n°!";
+		// $slug = $slugify->slugify($titre);
 
 		for ($i = 1; $i <= 30; $i++) {
 
