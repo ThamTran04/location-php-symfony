@@ -6,11 +6,13 @@ use App\Repository\AdRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Doctrine\ORM\Mapping\HasLifecycleCallbacks;
 
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Entity(repositoryClass=AdRepository::class)
+ *  @ORM\HasLifecycleCallbacks 
  */
 class Ad
 {
@@ -82,20 +84,26 @@ class Ad
 
 
     /**
-    *@Assert\All({
-    * @Assert\File(
-    *   maxSize="1024k",
-    *   mimeTypes={"image/jpeg"},
-    *   mimeTypesMessage="Entrer un jpg ou jpeg"
-    *) 
-    *
-    *})
-    *
-    */
-    public $file;// concerne les images telecharge afin de pouvoir mettre ensuite des validations
+     *@Assert\All({
+     * @Assert\File(
+     *   maxSize="1024k",
+     *   mimeTypes={"image/jpeg","image/png"},
+     *   mimeTypesMessage="Entrer un jpg ou jpeg"
+     *) 
+     *
+     *})
+     *
+     */
+    public $file; // concerne les images telecharge afin de pouvoir mettre ensuite des validations
 
     // champ qui contiendra les id des images supprimées
     public $tableau_id;
+
+    /**
+     * @ORM\ManyToOne(targetEntity=User::class, inversedBy="ads")
+     * @ORM\JoinColumn(nullable=false)
+     */
+    private $autor;
 
     public function __construct()
     {
@@ -248,6 +256,28 @@ class Ad
                 $imageUpload->setAd(null);
             }
         }
+
+        return $this;
+    }
+
+    /**
+     * @ORM\PreRemove
+     */
+    public function deleteUploadFiles()
+    {
+        foreach ($this->getImageUploads() as $image) {
+            unlink($_SERVER['DOCUMENT_ROOT'] . $image->getUrl());
+        }
+    }
+
+    public function getAutor(): ?User
+    {
+        return $this->autor;
+    }
+
+    public function setAutor(?User $autor): self
+    {
+        $this->autor = $autor;
 
         return $this;
     }
