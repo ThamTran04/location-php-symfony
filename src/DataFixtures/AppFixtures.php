@@ -3,6 +3,7 @@
 namespace App\DataFixtures;
 
 use App\Entity\Ad;
+use App\Entity\Booking;
 use App\Entity\Image;
 use App\Entity\Role;
 use App\Entity\User;
@@ -116,6 +117,28 @@ proident, sunt in culpa qui officia deserunt mollit anim id est laborum.");
 			$ad->setSlug($slug2);
 
 			$manager->persist($ad);
+
+            // creation réservations
+            for ($k=0;$k<mt_rand(0,5);$k++)
+                {
+                    $booking= new Booking();
+                    $booking->setStartDate(new \DateTime("+ 5 days"))
+                      ->setEndDate(new \DateTime("+ 15 days"))
+                      ->setCreatedAt(new \DateTime())
+                      ->setAmount($ad->getPrice()*10)
+                      ->setComment("Commentaire pour votre hote")
+                      ->setAd($ad)
+                      ->setBooker($user);
+
+                      $manager->persist($booking);
+
+                }
+
+
+
+
+
+
 			$manager->flush();
 
     	}
