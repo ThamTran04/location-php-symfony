@@ -6,13 +6,10 @@ use App\Repository\AdRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
-use Doctrine\ORM\Mapping\HasLifecycleCallbacks;
-
-use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Component\Validator\Constraints as Assert; //https://symfony.com/doc/current/validation.html
 
 /**
  * @ORM\Entity(repositoryClass=AdRepository::class)
- *  @ORM\HasLifecycleCallbacks 
  */
 class Ad
 {
@@ -23,12 +20,13 @@ class Ad
      */
     private $id;
 
+    // https://symfony.com/doc/4.4/reference/constraints/Length.html
     /**
      * @ORM\Column(type="string", length=255)
      * @Assert\Length(
      *      min = 10,
      *      max = 50,
-     *      minMessage = "Vous devez avoir plus que  {{ limit }} caractères",
+     *      minMessage = "vous devez avoir plus que {{ limit }} caractères",
      *      maxMessage = "Vous ne devez pas dépasser {{ limit }} caractères",
      *      allowEmptyString = false
      * )
@@ -55,13 +53,15 @@ class Ad
      */
     private $content;
 
+    //@Assert\Url=> https://symfony.com/doc/4.4/reference/constraints/Url.html
+    //https://symfony.com/doc/4.4/reference/constraints/Regex.html
     /**
      * @ORM\Column(type="string", length=255)
      * @Assert\Url
      * @Assert\Regex(
      *     pattern="#\.(jpg|gif|png)$#",
      *     match=true,
-     *     message="Votre URL doit se terminer par .jpg ou .gif ou .png"
+     *     message="votre URL doit se terminer par ...."
      * )
      */
     private $coverImage;
@@ -71,6 +71,8 @@ class Ad
      */
     private $rooms;
 
+
+    // @Assert\Valid => https://symfony.com/doc/4.4/reference/constraints/Valid.html : de co the mettre des constraint cho images (sd nhung contraints trong Entity Image.php)
     /**
      * @ORM\OneToMany(targetEntity=Image::class, mappedBy="ad", orphanRemoval=true)
      * @Assert\Valid
@@ -82,28 +84,7 @@ class Ad
      */
     private $imageUploads;
 
-
-    /**
-     *@Assert\All({
-     * @Assert\File(
-     *   maxSize="1024k",
-     *   mimeTypes={"image/jpeg","image/png"},
-     *   mimeTypesMessage="Entrer un jpg ou jpeg"
-     *) 
-     *
-     *})
-     *
-     */
-    public $file; // concerne les images telecharge afin de pouvoir mettre ensuite des validations
-
-    // champ qui contiendra les id des images supprimées
-    public $tableau_id;
-
-    /**
-     * @ORM\ManyToOne(targetEntity=User::class, inversedBy="ads")
-     * @ORM\JoinColumn(nullable=false)
-     */
-    private $autor;
+    public $file; //concerne les images téléchargé afin de pouvoir mettre ensuite des validations
 
     public function __construct()
     {
@@ -256,28 +237,6 @@ class Ad
                 $imageUpload->setAd(null);
             }
         }
-
-        return $this;
-    }
-
-    /**
-     * @ORM\PreRemove
-     */
-    public function deleteUploadFiles()
-    {
-        foreach ($this->getImageUploads() as $image) {
-            unlink($_SERVER['DOCUMENT_ROOT'] . $image->getUrl());
-        }
-    }
-
-    public function getAutor(): ?User
-    {
-        return $this->autor;
-    }
-
-    public function setAutor(?User $autor): self
-    {
-        $this->autor = $autor;
 
         return $this;
     }
