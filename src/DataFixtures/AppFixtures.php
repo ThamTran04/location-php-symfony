@@ -4,6 +4,7 @@ namespace App\DataFixtures;
 
 use App\Entity\Ad;
 use App\Entity\Booking;
+use App\Entity\Comment;
 use App\Entity\Image;
 use App\Entity\Role;
 use App\Entity\User;
@@ -122,8 +123,16 @@ proident, sunt in culpa qui officia deserunt mollit anim id est laborum.");
             for ($k=0;$k<mt_rand(0,5);$k++)
                 {
                     $booking= new Booking();
-                    $booking->setStartDate(new \DateTime("+ 5 days"))
-                      ->setEndDate(new \DateTime("+ 15 days"))
+
+                    $datedebut=(new \DateTime("+ 5 days"));
+                    $datedebut->setTime(0,0,0); // on se met à 00H00
+
+                    $booking->setStartDate($datedebut);
+
+                    $datefin=(new \DateTime("+ 15 days"));
+                    $datefin->setTime(0,0,0);
+
+                      $booking->setEndDate($datefin)
                       ->setCreatedAt(new \DateTime())
                       ->setAmount($ad->getPrice()*10)
                       ->setComment("Commentaire pour votre hote")
@@ -131,6 +140,21 @@ proident, sunt in culpa qui officia deserunt mollit anim id est laborum.");
                       ->setBooker($user);
 
                       $manager->persist($booking);
+
+
+                      if (mt_rand(0,1)){
+
+                        $comment = new Comment();
+                        $comment -> setCreatedAt(new \DateTime())
+                                ->setRating(mt_rand(0, 5))
+                                ->setContent("Commentaire de fin de réservation N°:$k ")
+                                ->setAd($ad)
+                                ->setAuthor($user);
+
+                         $manager->persist($comment);       
+
+
+                      }
 
                 }
 
