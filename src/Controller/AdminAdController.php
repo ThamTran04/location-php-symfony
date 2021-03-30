@@ -10,11 +10,14 @@ use Symfony\Component\Routing\Annotation\Route;
 class AdminAdController extends AbstractController
 {
     /**
-     * @Route("/admin/ads", name="admin_ads_index")
+     * @Route("/admin/ads/{page}", name="admin_ads_index")
      */
-    public function index(AdRepository $repo): Response
+    public function index(AdRepository $repo, $page=1): Response
     {
-        $repo = $repo->findAll();
+        $limit = 5; //nbrs d'enregistrements
+        $start = ($page-1)*$limit;
+        $repo = $repo->findBy([], [], $limit, $start);
+        dump($repo);
         return $this->render('admin/ad/index.html.twig', [
             'ads' => $repo
         ]);
