@@ -16,10 +16,14 @@ class AdminAdController extends AbstractController
     {
         $limit = 5; //nbrs d'enregistrements
         $start = ($page-1)*$limit;
+        $total_articles = count($repo->findAll());
         $repo = $repo->findBy([], [], $limit, $start);
+        $pages =ceil( ($total_articles/$limit));
         dump($repo);
         return $this->render('admin/ad/index.html.twig', [
-            'ads' => $repo
+            'ads' => $repo,
+            'page'=>$page,
+            'pages'=>$pages
         ]);
     }
 }
