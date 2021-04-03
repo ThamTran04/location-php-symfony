@@ -19,12 +19,51 @@ class AdRepository extends ServiceEntityRepository
         parent::__construct($registry, Ad::class);
     }
 
+
+    public function myFindAll(){
+
+            //"SELECT a FROM App\Entity\Ad a"
+        $queryBuilder= $this->createQueryBuilder('a');
+
+        $query = $queryBuilder->getQuery();
+
+
+        $results = $query->getResult();
+
+
+        return $results;
+
+    }
+
+// on récupére les annonces de prix <= à $price et avec un nbrs de chambres >= $rooms et ranger par ordre croissant
+public function myFindAdPriceRooms($price,$rooms){
+
+        $queryBuilder= $this->createQueryBuilder('a')
+        ->where('a.price <= :price')
+        ->setParameter('price',$price)
+        ->andWhere('a.rooms >= :rooms')
+        ->setParameter('rooms',$rooms)
+        ->orderBy('a.price','ASC');
+
+        $query = $queryBuilder->getQuery();
+
+
+        $results = $query->getResult();
+
+
+        return $results;
+
+
+}
+
+
     // /**
     //  * @return Ad[] Returns an array of Ad objects
     //  */
     /*
     public function findByExampleField($value)
     {
+        //"SELECT a FROM App\Entity\Ad a"
         return $this->createQueryBuilder('a')
             ->andWhere('a.exampleField = :val')
             ->setParameter('val', $value)
