@@ -44,6 +44,7 @@
    - #### Init symfony project 
 
      in laragon terninal, run: *composer create-project symfony/website-skeleton symfony4-project "^4.4"*
+     
      with api: *composer create-project symfony/skeleton my_project_name*
    
      <p align="center">
